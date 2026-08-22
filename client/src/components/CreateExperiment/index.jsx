@@ -44,7 +44,7 @@ const CreateExperiment = () => {
         }),
       };
       const response = await fetch(
-        "http://localhost:3000/api/experiments",
+        `${import.meta.env.VITE_API_URL}/api/experiments`,
         options,
       );
 

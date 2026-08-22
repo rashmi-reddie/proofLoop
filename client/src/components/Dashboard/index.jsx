@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { BeatLoader } from "react-spinners";
 
 const formatDate = (date) => {
-  return new Date(date).toLocaleString("en-Us", {
+  return new Date(date).toLocaleString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -37,9 +37,10 @@ const getStatusLabel = (status) => {
 const Dashboard = () => {
   const [experiments, setExperiments] = useState([]);
   const [progress, setProgress] = useState({});
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [todayProgress, setTodayProgress] = useState({});
+
+  const navigate = useNavigate();
 
   const activeExperiments = () => {
     return experiments.filter((experiment) => experiment.status === "active")
@@ -51,15 +52,19 @@ const Dashboard = () => {
       .length;
   };
 
-  const progressValues = Object.values(progress);
+  const validProgressValues = Object.values(progress)
+    .map((experimentProgress) => Number(experimentProgress?.completionRate))
+    .filter((value) => Number.isFinite(value));
 
   const averageProgress =
-    progressValues.length === 0
+    validProgressValues.length === 0
       ? 0
-      : progressValues.reduce(
-          (sum, experimentProgress) => sum + experimentProgress.completionRate,
-          0,
-        ) / progressValues.length;
+      : validProgressValues.reduce((sum, value) => sum + value, 0) /
+        validProgressValues.length;
+
+  // ==========================================
+  // GET TODAY'S PROGRESS
+  // ==========================================
 
   useEffect(() => {
     const getTodayProgress = async () => {
@@ -70,7 +75,7 @@ const Dashboard = () => {
 
         for (const experiment of experiments) {
           const response = await fetch(
-            `http://localhost:3000/api/experiments/${experiment._id}/logs`,
+            `${import.meta.env.VITE_API_URL}/api/experiments/${experiment._id}/logs`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -109,6 +114,10 @@ const Dashboard = () => {
     }
   }, [experiments]);
 
+  // ==========================================
+  // GET OVERALL PROGRESS
+  // ==========================================
+
   useEffect(() => {
     const getProgress = async () => {
       const token = localStorage.getItem("token");
@@ -118,7 +127,7 @@ const Dashboard = () => {
 
         for (const experiment of experiments) {
           const response = await fetch(
-            `http://localhost:3000/api/experiments/${experiment._id}/progress`,
+            `${import.meta.env.VITE_API_URL}/api/experiments/${experiment._id}/logs`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -132,26 +141,35 @@ const Dashboard = () => {
             progressData[experiment._id] = data;
           }
         }
+
         setProgress(progressData);
       } catch (err) {
         console.log("PROGRESS ERROR:", err.message);
       }
     };
+
     if (experiments.length > 0) {
       getProgress();
     }
   }, [experiments]);
+
+  // ==========================================
+  // GET EXPERIMENTS
+  // ==========================================
 
   useEffect(() => {
     const getExperiments = async () => {
       try {
         const token = localStorage.getItem("token");
 
-        const response = await fetch("http://localhost:3000/api/experiments", {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/experiments`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        });
+        );
 
         const data = await response.json();
 
@@ -161,9 +179,10 @@ const Dashboard = () => {
           throw new Error(data.message || "Failed to fetch experiments");
         }
 
-        setExperiments(data);
+        setExperiments(Array.isArray(data) ? data : data.experiments || []);
       } catch (err) {
         console.log("ERROR:", err.message);
+        setExperiments([]);
       } finally {
         setLoading(false);
       }
@@ -176,9 +195,11 @@ const Dashboard = () => {
     <div className="min-h-screen bg-violet-200 p-8">
       <h1 className="mb-2 text-3xl font-bold">PROOFLOOP</h1>
 
-      {/* Header */}
+      {/* ================= HEADER ================= */}
+
       <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         {/* Heading */}
+
         <div>
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-pink-100 text-lg">
@@ -196,6 +217,7 @@ const Dashboard = () => {
         </div>
 
         {/* New Experiment */}
+
         <button
           type="button"
           onClick={() => navigate("/experiments/new")}
@@ -205,8 +227,11 @@ const Dashboard = () => {
         </button>
       </div>
 
+      {/* ================= STATS ================= */}
+
       <div className="mb-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total */}
+
         <div className="rounded-2xl border border-violet-200 bg-orange-50 p-5 shadow-sm">
           <div className="flex items-start justify-between">
             <div>
@@ -230,6 +255,7 @@ const Dashboard = () => {
         </div>
 
         {/* Active */}
+
         <div className="rounded-2xl border border-sky-200 bg-sky-50 p-5 shadow-sm">
           <div className="flex items-start justify-between">
             <div>
@@ -251,6 +277,7 @@ const Dashboard = () => {
         </div>
 
         {/* Completed */}
+
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
           <div className="flex items-start justify-between">
             <div>
@@ -274,6 +301,7 @@ const Dashboard = () => {
         </div>
 
         {/* Average Progress */}
+
         <div className="rounded-2xl border border-pink-200 bg-pink-50 p-5 shadow-sm">
           <div className="flex items-start justify-between">
             <div>
@@ -296,6 +324,8 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* ================= LOADING / EMPTY / EXPERIMENTS ================= */}
 
       {loading ? (
         <div className="flex justify-center py-20">
@@ -340,6 +370,7 @@ const Dashboard = () => {
                 className="rounded-3xl border border-violet-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md"
               >
                 {/* Header */}
+
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <h3 className="text-xl font-bold text-slate-800">
@@ -361,6 +392,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Dates */}
+
                 <div className="mt-4 flex items-center gap-2 rounded-xl bg-violet-50 px-4 py-3">
                   <span className="text-sm">📅</span>
 
@@ -371,6 +403,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Overall Progress */}
+
                 <div className="mt-6">
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-sm font-semibold text-slate-600">
@@ -398,6 +431,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Days */}
+
                 <div className="mt-4 flex justify-between text-sm">
                   <span className="font-medium text-emerald-600">
                     ✓ {experimentProgress?.daysCompleted || 0} days completed
@@ -409,6 +443,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Daily Target */}
+
                 <div className="mt-5 rounded-2xl border border-violet-100 bg-violet-50/70 p-4">
                   <div className="flex items-center gap-2">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-100">
@@ -427,6 +462,7 @@ const Dashboard = () => {
                   </div>
 
                   {/* Today's Progress */}
+
                   <div className="mt-6">
                     <div className="mb-2 flex items-center justify-between gap-3">
                       <p className="text-sm font-semibold text-slate-600">
@@ -457,12 +493,15 @@ const Dashboard = () => {
                     >
                       {todayPercentage >= 100
                         ? "✓ Today's target completed!"
-                        : `${Math.round(todayPercentage)}% of today's target completed`}
+                        : `${Math.round(
+                            todayPercentage,
+                          )}% of today's target completed`}
                     </p>
                   </div>
                 </div>
 
                 {/* View Experiment */}
+
                 <button
                   type="button"
                   onClick={() => navigate(`/experiments/${experiment._id}`)}

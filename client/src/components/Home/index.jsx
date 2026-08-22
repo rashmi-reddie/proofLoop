@@ -17,7 +17,9 @@ const Home = () => {
     const getUsers = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch("http://localhost:3000/api/users");
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/users`,
+        );
         const data = await response.json();
 
         const formattedData = data.map((user) => ({
@@ -91,7 +93,10 @@ const Home = () => {
           email,
         }),
       };
-      const response = await fetch("http://localhost:3000/api/users", options);
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/users`,
+        options,
+      );
       const user = await response.json();
       const formattedData = {
         id: user._id,

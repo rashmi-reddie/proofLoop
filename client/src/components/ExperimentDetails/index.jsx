@@ -19,7 +19,7 @@ const ExperimentDetails = () => {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-          `http://localhost:3000/api/experiments/${experimentId}/logs`,
+          `${import.meta.env.VITE_API_URL}/api/experiments/${experimentId}/logs`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -46,8 +46,9 @@ const ExperimentDetails = () => {
     const getInsights = async () => {
       try {
         const token = localStorage.getItem("token");
+
         const response = await fetch(
-          `http://localhost:3000/api/experiments/${experimentId}/insights`,
+          `${import.meta.env.VITE_API_URL}/api/experiments/${experimentId}/insights`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -78,7 +79,7 @@ const ExperimentDetails = () => {
           },
         };
         const response = await fetch(
-          `http://localhost:3000/api/experiments/${experimentId}/progress`,
+          `${import.meta.env.VITE_API_URL}/api/experiments/${experimentId}/progress`,
           options,
         );
         const data = await response.json();
@@ -781,7 +782,7 @@ const ExperimentDetails = () => {
                               >
                                 {attachment.type === "image" && (
                                   <img
-                                    src={`http://localhost:3000${attachment.url}`}
+                                    src={`${import.meta.env.VITE_API_URL}${attachment.url}`}
                                     alt={`Proof ${index + 1}`}
                                     className="h-36 w-36 rounded-lg object-cover transition duration-200 hover:scale-[1.02]"
                                   />
@@ -789,7 +790,7 @@ const ExperimentDetails = () => {
 
                                 {attachment.type === "video" && (
                                   <video
-                                    src={`http://localhost:3000${attachment.url}`}
+                                    src={`${import.meta.env.VITE_API_URL}${attachment.url}`}
                                     controls
                                     className="h-36 w-64 rounded-lg object-cover"
                                   />

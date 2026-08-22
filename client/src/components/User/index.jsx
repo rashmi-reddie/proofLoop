@@ -26,7 +26,7 @@ const User = (props) => {
       };
 
       const response = await fetch(
-        `http://localhost:3000/api/users/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/users/${id}`,
         options,
       );
 
@@ -57,7 +57,7 @@ const User = (props) => {
       };
 
       const response = await fetch(
-        `http://localhost:3000/api/users/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/users/${id}`,
         options,
       );
 
