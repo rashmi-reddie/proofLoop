@@ -32,33 +32,53 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log("LOGIN ATTEMPT:", email);
+
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(401).json({ error: "Invalid Credentials" });
+      console.log("USER NOT FOUND");
+
+      return res.status(401).json({
+        message: "Invalid Credentials",
+      });
     }
+
+    console.log("USER FOUND:", user._id);
+    console.log("PASSWORD EXISTS:", !!user.password);
+    console.log("PASSWORD LENGTH:", user.password?.length);
 
     const isValidUser = await bcrypt.compare(password, user.password);
 
+    console.log("PASSWORD MATCH:", isValidUser);
+
     if (!isValidUser) {
-      return res.status(401).json({ message: "Invalid Credentials" });
+      return res.status(401).json({
+        message: "Invalid Credentials",
+      });
     }
+
     const token = jwt.sign(
       {
         userId: user._id,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" },
+      {
+        expiresIn: "7d",
+      },
     );
+
+    console.log("JWT CREATED");
 
     return res.status(200).json({
       message: "Login Successful",
       token,
     });
   } catch (err) {
+    console.error("LOGIN ERROR:", err);
+
     return res.status(500).json({
       message: "Server error",
-      error: err,
     });
   }
 };
