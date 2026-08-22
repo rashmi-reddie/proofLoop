@@ -4,15 +4,15 @@ import CreateDailyLog from "./components/CreateDailyLog";
 import CreateExperiment from "./components/CreateExperiment";
 import Dashboard from "./components/Dashboard";
 import ExperimentDetails from "./components/ExperimentDetails";
-import Home from "./components/Home";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import Welcome from "./components/Welcome";
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/users" element={<Home />} />
+        <Route path="/" element={<Welcome />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />

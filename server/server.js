@@ -2,26 +2,25 @@ const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
 const path = require("path");
-const app = express();
+
 const connectDB = require("./config/db.js");
 const authRoutes = require("./routes/authRoutes");
 const experimentRoutes = require("./routes/experimentRoutes");
 const logRoutes = require("./routes/logRoutes");
 const insightRoutes = require("./routes/insightRoutes");
 const aiRoutes = require("./routes/aiRoutes.js");
+const app = express();
 
-const {
-  getUsers,
-  createUser,
-  editUser,
-  deleteUser,
-} = require("./controllers/userController.js");
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://proof-loop-zeta.vercel.app"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
-const PORT = process.env.PORT || 3000;
-
+app.options("*", cors());
 app.use(express.json());
-
-app.use(cors());
 
 app.use("/api/ai", aiRoutes);
 
@@ -35,6 +34,15 @@ app.use("/api/auth", authRoutes);
 app.use("/api/experiments", experimentRoutes);
 app.use("/api/experiments", logRoutes);
 app.use("/api/experiments", insightRoutes);
+
+const {
+  getUsers,
+  createUser,
+  editUser,
+  deleteUser,
+} = require("./controllers/userController.js");
+
+const PORT = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
   res.send("HOME PAGE");
