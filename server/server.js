@@ -17,6 +17,8 @@ const {
   deleteUser,
 } = require("./controllers/userController.js");
 
+const PORT = process.env.PORT || 3000;
+
 app.use(express.json());
 
 app.use(cors());
@@ -46,6 +48,6 @@ app.patch("/api/users/:id", editUser);
 
 app.delete("/api/users/:id", deleteUser);
 
-app.listen(process.env.PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`server listening at port ${process.env.PORT}`);
 });
