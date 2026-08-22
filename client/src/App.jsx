@@ -1,12 +1,12 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
+import CreateDailyLog from "./components/CreateDailyLog";
 import CreateExperiment from "./components/CreateExperiment";
 import Dashboard from "./components/Dashboard";
 import ExperimentDetails from "./components/ExperimentDetails";
 import Home from "./components/Home";
 import Login from "./components/Login";
 import Register from "./components/Register";
-import CreateDailyLog from "./components/createDailyLog";
 
 const App = () => {
   return (
